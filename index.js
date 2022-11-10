@@ -97,7 +97,7 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/review/:service',verifyJWT, async (req, res) => {
+        app.get('/review/:service', async (req, res) => {
             const service = req.params.service;
             const query = { service: service }
             const cursor = reviewCollection.find(query);
