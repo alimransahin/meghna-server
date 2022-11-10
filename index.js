@@ -15,6 +15,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const servicesCollection = client.db('meghna-tourist').collection('services');
+        const reviewCollection = client.db('meghna-tourist').collection('review');
         app.get('/services', async (req, res) => {
             const query = {};
             const cursor = servicesCollection.find(query);
@@ -34,6 +35,42 @@ async function run() {
             res.send(service);
         })
 
+        app.post('/review', async(req,res)=>{
+            const review=req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        })
+        app.get('/review/:service', async (req, res) => {
+            const service = req.params.service;
+            const query = { service: service }
+            const cursor = reviewCollection.find(query);
+            const reviews=await cursor.toArray();
+            res.send(reviews);
+        })
+        app.get('/my-reviews', async (req, res) => {
+            // const decoded = req.decoded;
+            
+            // if(decoded.email !== req.query.email){
+            //     res.status(403).send({message: 'unauthorized access'})
+            // }
+
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    email: req.query.email
+                }
+            }
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
+
+        app.delete('/my-reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewCollection.deleteOne(query);
+            res.send(result);
+        })
 
     }
     finally {
