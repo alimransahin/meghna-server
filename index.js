@@ -78,6 +78,24 @@ async function run() {
             const result = await reviewCollection.insertOne(review);
             res.send(result);
         });
+         app.get('/edit/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+             const review = await reviewCollection.findOne(query);
+             res.send(review);
+        });
+        app.patch('/review/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const text = req.body;
+            const query = { _id: ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    text: text
+                }
+            }
+            const result = await reviewCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        })
 
         app.get('/review/:service',verifyJWT, async (req, res) => {
             const service = req.params.service;
